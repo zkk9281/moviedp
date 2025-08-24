@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zkk.moviedp.mapper.BlogMapper">
+
+    <resultMap id="preferenceResultMap" type="com.zkk.moviedp.entity.Preference">
+        <id property="userId" column="user_id" jdbcType="BIGINT"/>
+        <result property="movieId" column="movie_id" jdbcType="BIGINT"/>
+        <result property="score" column="score" jdbcType="INTEGER"/>
+        <result property="cnt" column="cnt" jdbcType="INTEGER"/>
+    </resultMap>
+    <select id="selectAllPreferences" resultMap="preferenceResultMap" resultType="com.zkk.moviedp.entity.Preference">
+        SELECT c.user_id, c.movie_id, c.score, cc.cnt FROM `tb_blog` c
+        JOIN (SELECT user_id, COUNT(user_id) cnt FROM `tb_blog` GROUP BY user_id) cc ON c.user_id = cc.user_id
+        ORDER BY c.user_id
+    </select>
+</mapper>
