@@ -8,7 +8,7 @@ import dev.langchain4j.service.spring.AiService;
 @AiService(
         chatMemoryProvider = "chatMemoryProvider",
         tools = {"movieController", "blogController"},
-        contentRetriever = "myContentRetriever"
+        contentRetriever = "movieContentRetriever"
 )
 public interface MovieAgent {
 
