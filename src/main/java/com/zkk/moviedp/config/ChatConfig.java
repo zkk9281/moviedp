@@ -1,29 +1,36 @@
 package com.zkk.moviedp.config;
 
 import com.zkk.moviedp.utils.RedisChatMemoryStore;
-import dev.langchain4j.data.document.Document;
-import dev.langchain4j.data.document.loader.FileSystemDocumentLoader;
 import dev.langchain4j.data.segment.TextSegment;
 import dev.langchain4j.memory.chat.ChatMemoryProvider;
 import dev.langchain4j.memory.chat.MessageWindowChatMemory;
+import dev.langchain4j.model.embedding.EmbeddingModel;
 import dev.langchain4j.rag.content.retriever.ContentRetriever;
 import dev.langchain4j.rag.content.retriever.EmbeddingStoreContentRetriever;
-import dev.langchain4j.store.embedding.EmbeddingStoreIngestor;
-import dev.langchain4j.store.embedding.inmemory.InMemoryEmbeddingStore;
+import dev.langchain4j.store.embedding.EmbeddingStore;
+import dev.langchain4j.store.embedding.redis.RedisEmbeddingStore;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
-import javax.print.Doc;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 @Configuration
 public class ChatConfig {
 
+    @Value("${spring.data.redis.host}")
+    private String redisHost;
+
+    @Value("${spring.data.redis.port}")
+    private Integer redisPort;
+
+    @Value("${spring.data.redis.password}")
+    private String redisPassword;
+
     @Autowired
     private RedisChatMemoryStore redisChatMemoryStore;
+
+    @Autowired
+    private EmbeddingModel embeddingModel;
 
     @Bean
     public ChatMemoryProvider chatMemoryProvider(){
@@ -36,12 +43,22 @@ public class ChatConfig {
     }
 
     @Bean
-    public ContentRetriever myContentRetriever() {
-        Document document1 = FileSystemDocumentLoader.loadDocument("D:\\Data\\IdeaProjects\\moviedp\\moviedp\\src\\main\\resources\\movies.txt");
-        List<Document> documents = Arrays.asList(document1);
-        InMemoryEmbeddingStore<TextSegment> embeddingStore = new InMemoryEmbeddingStore<>();
-        EmbeddingStoreIngestor.ingest(documents, embeddingStore);
+    public ContentRetriever movieContentRetriever() {
+        return EmbeddingStoreContentRetriever.builder()
+                .embeddingModel(embeddingModel)
+                .embeddingStore(embeddingStore())
+                .maxResults(10)
+                .minScore(0.7)
+                .build();
+    }
 
-        return EmbeddingStoreContentRetriever.from(embeddingStore);
+    @Bean
+    public EmbeddingStore<TextSegment> embeddingStore() {
+        return RedisEmbeddingStore.builder()
+                .host(redisHost)
+                .port(redisPort)
+                .password(redisPassword)
+                .dimension(384)
+                .build();
     }
 }
