@@ -26,7 +26,8 @@ public class MvcConfig implements WebMvcConfigurer {
                         "/movie/**",
                         "/voucher/**",
                         "/upload/**",
-                        "/chat/**"
+                        "/chat/**",
+                        "/showing/**"
                 ).order(1);
         // token刷新拦截器
         registry.addInterceptor(new RefreshTokenInterceptor(jwtProperties)).addPathPatterns("/**").order(0);
