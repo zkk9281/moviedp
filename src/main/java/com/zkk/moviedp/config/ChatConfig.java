@@ -5,10 +5,11 @@ import dev.langchain4j.data.segment.TextSegment;
 import dev.langchain4j.memory.chat.ChatMemoryProvider;
 import dev.langchain4j.memory.chat.MessageWindowChatMemory;
 import dev.langchain4j.model.embedding.EmbeddingModel;
+import dev.langchain4j.model.embedding.onnx.allminilml6v2.AllMiniLmL6V2EmbeddingModel;
 import dev.langchain4j.rag.content.retriever.ContentRetriever;
 import dev.langchain4j.rag.content.retriever.EmbeddingStoreContentRetriever;
 import dev.langchain4j.store.embedding.EmbeddingStore;
-import dev.langchain4j.store.embedding.redis.RedisEmbeddingStore;
+import dev.langchain4j.store.embedding.inmemory.InMemoryEmbeddingStore;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -29,8 +30,6 @@ public class ChatConfig {
     @Autowired
     private RedisChatMemoryStore redisChatMemoryStore;
 
-    @Autowired
-    private EmbeddingModel embeddingModel;
 
     @Bean
     public ChatMemoryProvider chatMemoryProvider(){
@@ -44,6 +43,7 @@ public class ChatConfig {
 
     @Bean
     public ContentRetriever movieContentRetriever() {
+        EmbeddingModel embeddingModel = new AllMiniLmL6V2EmbeddingModel();
         return EmbeddingStoreContentRetriever.builder()
                 .embeddingModel(embeddingModel)
                 .embeddingStore(embeddingStore())
@@ -54,11 +54,6 @@ public class ChatConfig {
 
     @Bean
     public EmbeddingStore<TextSegment> embeddingStore() {
-        return RedisEmbeddingStore.builder()
-                .host(redisHost)
-                .port(redisPort)
-                .password(redisPassword)
-                .dimension(384)
-                .build();
+        return new InMemoryEmbeddingStore<>();
     }
 }
