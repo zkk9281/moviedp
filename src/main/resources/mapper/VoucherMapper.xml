@@ -4,10 +4,10 @@
 
     <select id="queryVoucherOfMovie" resultType="com.zkk.moviedp.entity.Voucher" parameterType="java.lang.Long">
         SELECT
-            v.`id`, v.`movie_id`, v.`title`, v.`sub_title`, v.`rules`, v.`pay_value`,
-            v.`actual_value`, v.`type`, sv.`stock` , sv.begin_time , sv.end_time
+            v.`id`, v.`showing_id`, v.`title`, v.`sub_title`, v.`rules`, v.`pay_value`,
+            v.`actual_value`, v.`type`, v.`stock` , v.begin_time , v.end_time
         FROM tb_voucher v
-        LEFT JOIN  tb_seckill_voucher sv ON v.id = sv.voucher_id
-        WHERE v.movie_id = #{movieId} AND v.status = 1
+        LEFT JOIN tb_showing s ON v.showing_id = s.id
+        WHERE s.movie_id = #{movieId} AND v.status = 1
     </select>
 </mapper>

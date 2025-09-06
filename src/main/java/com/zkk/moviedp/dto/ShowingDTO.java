@@ -10,10 +10,12 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ShowingDTO {
+    private Long id;
     private String movie;
     private String theater;
     private String address;
     private LocalDateTime startTime;
     private Double price;
+    private Long voucherId;
     private Integer stock;
 }

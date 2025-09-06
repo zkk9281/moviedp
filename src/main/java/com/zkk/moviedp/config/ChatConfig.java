@@ -36,7 +36,7 @@ public class ChatConfig {
         return memoryId -> MessageWindowChatMemory
                 .builder()
                 .id(memoryId)
-                .maxMessages(20)
+                .maxMessages(100)
                 .chatMemoryStore(redisChatMemoryStore)
                 .build();
     }
