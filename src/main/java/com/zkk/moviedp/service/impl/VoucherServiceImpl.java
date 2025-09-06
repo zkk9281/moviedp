@@ -39,12 +39,12 @@ public class VoucherServiceImpl extends ServiceImpl<VoucherMapper, Voucher> impl
         // 保存优惠券
         save(voucher);
         // 保存秒杀信息
-        SeckillVoucher seckillVoucher = new SeckillVoucher();
-        seckillVoucher.setVoucherId(voucher.getId());
-        seckillVoucher.setStock(voucher.getStock());
-        seckillVoucher.setBeginTime(voucher.getBeginTime());
-        seckillVoucher.setEndTime(voucher.getEndTime());
-        seckillVoucherService.save(seckillVoucher);
+//        SeckillVoucher seckillVoucher = new SeckillVoucher();
+//        seckillVoucher.setVoucherId(voucher.getId());
+//        seckillVoucher.setStock(voucher.getStock());
+//        seckillVoucher.setBeginTime(voucher.getBeginTime());
+//        seckillVoucher.setEndTime(voucher.getEndTime());
+//        seckillVoucherService.save(seckillVoucher);
 
         stringRedisTemplate.opsForValue().set(SECKILL_STOCK_KEY + voucher.getId(), voucher.getStock().toString());
     }

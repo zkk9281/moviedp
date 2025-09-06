@@ -26,9 +26,9 @@ public class Voucher implements Serializable {
     private Long id;
 
     /**
-     * 电影id
+     * 电影场次id
      */
-    private Long movieId;
+    private Long showingId;
 
     /**
      * 代金券标题
@@ -67,19 +67,16 @@ public class Voucher implements Serializable {
     /**
      * 库存
      */
-    @TableField(exist = false)
     private Integer stock;
 
     /**
      * 生效时间
      */
-    @TableField(exist = false)
     private LocalDateTime beginTime;
 
     /**
      * 失效时间
      */
-    @TableField(exist = false)
     private LocalDateTime endTime;
 
     /**

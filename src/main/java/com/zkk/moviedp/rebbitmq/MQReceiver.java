@@ -6,6 +6,7 @@ import com.zkk.moviedp.entity.VoucherOrder;
 import com.zkk.moviedp.service.ISeckillVoucherService;
 import com.zkk.moviedp.service.IVoucherOrderService;
 import com.zkk.moviedp.constants.OrderStatus;
+import com.zkk.moviedp.service.IVoucherService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.core.io.ClassPathResource;
@@ -29,6 +30,9 @@ public class MQReceiver {
     IVoucherOrderService voucherOrderService;
     @Autowired
     ISeckillVoucherService seckillVoucherService;
+
+    @Autowired
+    IVoucherService voucherService;
     @Autowired
     private MQSender mqSender;
     @Autowired
@@ -56,7 +60,9 @@ public class MQReceiver {
         //5.一人一单
         Long userId = voucherOrder.getUserId();
         //5.1查询订单
-        long count = voucherOrderService.query().eq("user_id", userId).eq("voucher_id", voucherId).count();
+        long count = voucherOrderService.query().eq("user_id", userId)
+                .eq("voucher_id", voucherId).eq("status", OrderStatus.UNPAID)
+                .eq("status", OrderStatus.PAYING).count();
         //5.2判断是否存在
         if(count>0){
             //用户已经购买过了
@@ -65,10 +71,10 @@ public class MQReceiver {
         }
         log.info("扣减库存");
         //6.扣减库存
-        boolean success = seckillVoucherService
+        boolean success = voucherService
                 .update()
                 .setSql("stock = stock-1")
-                .eq("voucher_id", voucherId)
+                .eq("id", voucherId)
                 .gt("stock",0)//cas乐观锁
                 .update();
         if(!success){
@@ -98,17 +104,18 @@ public class MQReceiver {
                 order.setStatus(OrderStatus.CANCELLED);
                 voucherOrderService.updateById(order);
                 // 恢复库存
-                seckillVoucherService.update()
+                voucherService.update()
                         .setSql("stock = stock+1")
-                        .eq("voucher_id", voucherId)
+                        .eq("id", voucherId)
                         .update();
                 // 执行脚本处理redis库存和订单
-                stringRedisTemplate.execute(
+                Long result = stringRedisTemplate.execute(
                         TIMEOUT_SCRIPT,
                         Collections.emptyList(),
                         voucherId.toString(),
                         userId.toString()
                 );
+                log.info("result: " + result);
                 log.info("订单超时取消成功: " + orderId);
             }
         } catch (Exception e) {

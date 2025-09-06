@@ -3,21 +3,25 @@
 <mapper namespace="com.zkk.moviedp.mapper.ShowingMapper">
 
     <resultMap id="ShowingDTOMap" type="com.zkk.moviedp.dto.ShowingDTO">
+        <id property="id" column="id"/>
         <result property="movie" column="movie"/>
         <result property="theater" column="theater"/>
         <result property="address" column="address"/>
         <result property="startTime" column="start_time"/>  <!-- 下划线转驼峰 -->
         <result property="price" column="price"/>
+        <result property="voucherId" column="voucherId"/>
         <result property="stock" column="stock"/>
     </resultMap>
 
     <select id="queryByMovieIds" resultMap="ShowingDTOMap">
         SELECT
+        s.id,
         m.`name` AS movie,
         t.`name` AS theater,
         t.address,
         s.start_time,
         s.price,
+        v.id AS voucherId,
         v.stock
         FROM tb_showing s
         JOIN tb_movie m ON s.movie_id = m.id
